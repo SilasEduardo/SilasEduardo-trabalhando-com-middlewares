@@ -14,7 +14,7 @@ function checksExistsUserAccount(request, response, next) {
 
   const user = users.find(user => user.username === username);
 
-  if(user){
+  if(!user){
     return response.status(404).json({"msg": "Erro message"})
   }
 
@@ -26,40 +26,44 @@ function checksExistsUserAccount(request, response, next) {
 function checksCreateTodosUserAvailability(request, response, next) {
   const {user} = request;
 
-  if(!user.pro){
-    return response.status(403).json({"msg":"Erro message"})
+  const countTodos = user.todos.length;
+
+  if(countTodos >= 10 && !user.pro) {
+    return response.status(403).json({error: "User not found"});
   }
 
-  next()
+  if((countTodos <= 10 && !user.pro) || user.pro) {
+    return next();
+  }
 }
 // Feito
 function checksTodoExists(request, response, next) {
   const {username} = request.headers;
   const {id} = request.params;
 
-  const todo = users.todos.find(user => user.id === id)
-  const user = users.find(user => user.username === username)
-
-  if(!validate(id)){
-    return response.status(400).json({"msg": "Erro message"})
+  if(!validate(id)) {
+    return response.status(400).json({error: "ID not format UUID"});
   }
 
-  if(!todo){
-    return response.status(404).json({"msg": "Erro menssage"})
+  const user = users.find(user => (user.username === username));
+
+  if(!user) {
+    return response.status(404).json({error: "User not found"});
   }
 
-  if(!user){
-    return response.status(404).json({"msg": "User does not exist"})
+  const todo = user.todos.find(todo => todo.id === id);
+  if (!todo) {
+    return response.status(404).json({ error: "Todo not found" });
   }
 
-  request.todo = todo;
   request.user = user;
+  request.todo = todo;
 
-  next()
+  return next();
 
   
 }
-
+//Feito
 function findUserById(request, response, next) {
   const {id} = request.params;
 
@@ -72,7 +76,7 @@ function findUserById(request, response, next) {
   request.user = user;
   next()
 }
-
+//Passou
 app.post('/users', (request, response) => {
   const { name, username } = request.body;
 
@@ -97,13 +101,13 @@ app.post('/users', (request, response) => {
 
   return response.status(201).json(user);
 });
-
+//Pausou
 app.get('/users/:id', findUserById, (request, response) => {
   const { user } = request;
 
   return response.json(user);
 });
-
+//Passou
 app.patch('/users/:id/pro', findUserById, (request, response) => {
   const { user } = request;
 
@@ -115,13 +119,13 @@ app.patch('/users/:id/pro', findUserById, (request, response) => {
 
   return response.json(user);
 });
-
+//paussou
 app.get('/todos', checksExistsUserAccount, (request, response) => {
   const { user } = request;
 
   return response.json(user.todos);
 });
-
+//Passou
 app.post('/todos', checksExistsUserAccount, checksCreateTodosUserAvailability, (request, response) => {
   const { title, deadline } = request.body;
   const { user } = request;
