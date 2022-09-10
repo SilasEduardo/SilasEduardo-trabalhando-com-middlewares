@@ -32,9 +32,32 @@ function checksCreateTodosUserAvailability(request, response, next) {
 
   next()
 }
-
+// Feito
 function checksTodoExists(request, response, next) {
-  // Complete aqui
+  const {username} = request.headers;
+  const {id} = request.params;
+
+  const todo = users.todos.find(user => user.id === id)
+  const user = users.find(user => user.username === username)
+
+  if(!validate(id)){
+    return response.status(400).json({"msg": "Erro message"})
+  }
+
+  if(!todo){
+    return response.status(404).json({"msg": "Erro menssage"})
+  }
+
+  if(!user){
+    return response.status(404).json({"msg": "User does not exist"})
+  }
+
+  request.todo = todo;
+  request.user = user;
+
+  next()
+
+  
 }
 
 function findUserById(request, response, next) {
@@ -50,6 +73,7 @@ app.post('/users', (request, response) => {
     return response.status(400).json({ error: 'Username already exists' });
   }
 
+  
   
 
   const user = {
