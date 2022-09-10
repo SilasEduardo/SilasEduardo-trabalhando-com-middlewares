@@ -10,7 +10,7 @@ app.use(cors());
 const users = [];
 
 function checksExistsUserAccount(request, response, next) {
-  // Complete aqui
+  const {user} = request.headers;
 }
 
 function checksCreateTodosUserAvailability(request, response, next) {
@@ -33,6 +33,8 @@ app.post('/users', (request, response) => {
   if (usernameAlreadyExists) {
     return response.status(400).json({ error: 'Username already exists' });
   }
+
+  
 
   const user = {
     id: uuidv4(),
