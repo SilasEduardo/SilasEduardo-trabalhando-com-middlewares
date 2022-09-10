@@ -8,13 +8,29 @@ app.use(express.json());
 app.use(cors());
 
 const users = [];
-
+// Feito
 function checksExistsUserAccount(request, response, next) {
-  const {user} = request.headers;
-}
+  const {username} = request.headers;
 
+  const user = users.find(user => user.username === username);
+
+  if(user){
+    return response.status(404).json({"msg": "Erro message"})
+  }
+
+  request.user = user;
+  next()
+
+}
+ // Feito
 function checksCreateTodosUserAvailability(request, response, next) {
-  // Complete aqui
+  const {user} = request;
+
+  if(!user.pro){
+    return response.status(403).json({"msg":"Erro message"})
+  }
+
+  next()
 }
 
 function checksTodoExists(request, response, next) {
